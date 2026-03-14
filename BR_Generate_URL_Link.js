@@ -1,13 +1,15 @@
-/**  BR - Generate URL Link
+/**	BR - Generate URL Link from ServiceNow record or GoJira record
+*	When : onBefore
+*	Insert & Update */
 
 (function executeRule(current, previous /*null when async*/) {
 
     var refValue = current.getValue('u_reference');
-	  var refTool = current.getValue('u_tracking_tool');
+	var refTool = current.getValue('u_tracking_tool');
     if (!refValue) return;
 
     var instanceName = gs.getProperty('instance_name');
-	  var instanceGojira = gs.getProperty('gojira.instance.url');
+	var instanceGojira = gs.getProperty('gojira.instance.url');
     var baseUrl = "https://" + instanceName + ".service-now.com/now/nav/ui/classic/params/target/";
     var finalUrl = "";
 
