@@ -1,1 +1,1 @@
-Some ServiceNow scripts developped for my customer.
+Some ServiceNow scripts developed for my customer.
