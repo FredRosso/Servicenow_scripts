@@ -11,6 +11,7 @@ function onLoad() {
         saveGa.addParam('sysparm_fieldvalue', newValue);
         saveGa.addParam('sysparm_sysid', g_form.getUniqueValue());
         saveGa.addParam('sysparm_tablename', tableName);
+		saveGa.getXMLAnswer();
     }
   
 	g_form.onUserChangeValue(save);
