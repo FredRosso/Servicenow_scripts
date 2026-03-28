@@ -1,3 +1,9 @@
+/* Client Script - 
+Type = onLoad - UI Type = All
+Isolate script = false
+Global = true
+*/
+
 function onLoad() {
    
     var style = document.createElement('style');
