@@ -14,7 +14,8 @@ TaskVisibilityUtils.prototype = {
     canShowPostMortem: function(current) {
 
         var pmExist = new GlideRecord('u_post_mortem');
-        pmExist.addQuery('u_task', current.getUniqueValue());
+        var pMortem = pmExist.addQuery('u_task', current.getUniqueValue());
+        pMortem.addOrCondition('u_task_outage', current.getUniqueValue());
         pmExist.setLimit(1);
         pmExist.query();
         if (pmExist.hasNext()) {
@@ -47,7 +48,7 @@ TaskVisibilityUtils.prototype = {
 
     canCreateEmbeddedRecord: function(current) {
 
-        // Tables gérées
+        // Tables gérées (Embedded List)
         var config = {
             'u_timeline_postmortem': true,
             'u_cause_postmortem': true,
@@ -60,21 +61,28 @@ TaskVisibilityUtils.prototype = {
 
         // Récupération du lien parent
         var pmID = current.getValue('u_post_mortem');
-        if (!pmID) return;
+        if (gs.nil(pmID)) return;
 
-        // Accès si "Créateur" ou dans "Watch_list"
-        var pmGr = new GlideRecord('u_post_mortem');
-        if (pmGr.get(pmID)) {
-            var userID = gs.getUserID();
-            var isCreator = (pmGr.getValue('u_creator') == userID);
-            var isInWatchList = (pmGr.getValue('watch_list') && pmGr.getValue('watch_list').indexOf(userID) > -1);
+        // Récupérer le Créateur et la liste des groupes directement depuis le parent
+        var isCreator = (current.u_post_mortem.u_creator == gs.getUserID());
+        var participantGroups = current.u_post_mortem.u_participant.toString();
+        var isParticipant = false;
 
-            if (!isCreator && !isInWatchList) {
-                gs.addErrorMessage("Accès restreint au créateur et à la watch list du Post Mortem.");
-                current.setAbortAction(true);
+        if (!gs.nil(participantGroups)) {
+            var groupArray = participantGroups.split(',');
+
+            for (var i = 0; i < groupArray.length; i++) {
+                if (gs.getUser().isMemberOf(groupArray[i])) {
+                    isParticipant = true;
+                    break;
+                }
             }
         }
-
+        // Blocage si les conditions ne sont pas remplies
+        if (!isCreator && !isParticipant) {
+            gs.addErrorMessage("Accès restreint au créateur du Post Mortem et aux membres des groupes participants.");
+            current.setAbortAction(true);
+        }
     },
 
     type: 'TaskVisibilityUtils'
